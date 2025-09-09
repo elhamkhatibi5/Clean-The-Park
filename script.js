@@ -19,7 +19,7 @@ startBtn.addEventListener("click", () => {
   trashInterval = setInterval(createTrash, 1000); // هر ثانیه غذا
 });
 
-// صدا با Web Audio API
+// Web Audio API برای صدا
 function playBeep(frequency = 440, duration = 150){
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const oscillator = audioCtx.createOscillator();
@@ -33,14 +33,27 @@ function playBeep(frequency = 440, duration = 150){
   oscillator.stop(audioCtx.currentTime + duration/1000);
 }
 
-// بررسی برخورد غذا با سطل
-function isOverlapping(el1, el2){
-  const r1 = el1.getBoundingClientRect();
-  const r2 = el2.getBoundingClientRect();
-  const centerX = r1.left + r1.width/2;
-  const centerY = r1.top + r1.height/2;
-  return (centerX >= r2.left && centerX <= r2.right &&
-          centerY >= r2.top && centerY <= r2.bottom);
+// بررسی برخورد با سطل
+function checkTrashInBin(trash){
+  const trashRect = trash.getBoundingClientRect();
+  const binRect = binEI.getBoundingClientRect();
+  const trashCenterX = trashRect.left + trashRect.width/2;
+  const trashCenterY = trashRect.top + trashRect.height/2;
+
+  if(trashCenterX >= binRect.left && trashCenterX <= binRect.right &&
+     trashCenterY >= binRect.top && trashCenterY <= binRect.bottom){
+    trash.remove();
+    recycle++;
+    recycleEI.textContent = recycle;
+    playBeep(600,150);
+    if(recycle % 5 === 0){
+      level++;
+      levelEI.textContent = level;
+      playBeep(900,300);
+    }
+    binEI.classList.add("active");
+    setTimeout(()=>binEI.classList.remove("active"),300);
+  }
 }
 
 // ایجاد غذا و Drag & Drop
@@ -82,6 +95,19 @@ function createTrash(){
     y = Math.max(0, Math.min(gameEI.clientHeight-60, y));
     trash.style.left = x+"px";
     trash.style.top = y+"px";
+
+    // حلقه نورانی وقتی نزدیک سطل شد
+    const trashRect = trash.getBoundingClientRect();
+    const binRect = binEI.getBoundingClientRect();
+    const dx = (trashRect.left + trashRect.width/2) - (binRect.left + binRect.width/2);
+    const dy = (trashRect.top + trashRect.height/2) - (binRect.top + binRect.height/2);
+    const distance = Math.sqrt(dx*dx + dy*dy);
+
+    if(distance < 100){
+      binEI.classList.add("glow");
+    } else {
+      binEI.classList.remove("glow");
+    }
   }
 
   function stopDrag(){
@@ -91,19 +117,8 @@ function createTrash(){
     document.removeEventListener("touchmove", drag);
     document.removeEventListener("touchend", stopDrag);
 
-    if(isOverlapping(trash, binEI)){
-      trash.remove();
-      recycle++;
-      recycleEI.textContent = recycle;
-      playBeep(600,150);
-      if(recycle % 5 === 0){
-        level++;
-        levelEI.textContent = level;
-        playBeep(900,300);
-      }
-      binEI.classList.add("active");
-      setTimeout(()=>binEI.classList.remove("active"),300);
-    }
+    checkTrashInBin(trash);
+    binEI.classList.remove("glow");
   }
 
   trash.addEventListener("mouseup", stopDrag);
