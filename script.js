@@ -6,7 +6,7 @@ const startBtn = document.getElementById("startBtn");
 
 let level = 1;
 let recycle = 0;
-let audioCtx; // Web Audio Context
+let audioCtx;
 let trashInterval;
 
 const foods = ["🍎","🍔","🍕","🥦","🍌","🌽","🍇","🍩"];
@@ -15,11 +15,11 @@ const foods = ["🍎","🍔","🍕","🥦","🍌","🌽","🍇","🍩"];
 startBtn.addEventListener("click", () => {
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   startBtn.style.display = "none";
-  createTrash(); // first food
-  trashInterval = setInterval(createTrash, 1000); // spawn food every second
+  createTrash(); // اولین غذا
+  trashInterval = setInterval(createTrash, 1000); // هر ثانیه غذا
 });
 
-// Play beep sound (Web Audio API)
+// صدا با Web Audio API
 function playBeep(frequency = 440, duration = 150){
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const oscillator = audioCtx.createOscillator();
@@ -33,14 +33,17 @@ function playBeep(frequency = 440, duration = 150){
   oscillator.stop(audioCtx.currentTime + duration/1000);
 }
 
-// Collision detection
+// بررسی برخورد غذا با سطل
 function isOverlapping(el1, el2){
   const r1 = el1.getBoundingClientRect();
   const r2 = el2.getBoundingClientRect();
-  return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+  const centerX = r1.left + r1.width/2;
+  const centerY = r1.top + r1.height/2;
+  return (centerX >= r2.left && centerX <= r2.right &&
+          centerY >= r2.top && centerY <= r2.bottom);
 }
 
-// Create draggable food
+// ایجاد غذا و Drag & Drop
 function createTrash(){
   const trash = document.createElement("div");
   trash.className = "trash";
@@ -55,7 +58,7 @@ function createTrash(){
   trash.addEventListener("touchstart", startDrag);
 
   function startDrag(e){
-    dragging = true;
+    dragging=true;
     const rect = trash.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
