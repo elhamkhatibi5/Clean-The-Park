@@ -1,22 +1,29 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>بازی پاک کردن پارک</title>
+  <title>Clean the Park Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🌳 پاک کردن پارک 🗑️</h1>
+  <h1>🌳 Clean the Park 🗑️</h1>
 
   <div id="scoreBoard">
-    لول: <span id="level">1</span> | امتیاز: <span id="recycle">0</span>
+    Level: <span id="level">1</span> | Score: <span id="recycle">0</span>
   </div>
 
-  <button id="startBtn">شروع بازی</button>
+  <button id="startBtn">Start Game</button>
 
   <div id="game">
+    <!-- Trash items will be added here by JS -->
     <div id="bin">🗑️</div>
+
+    <!-- Floating stars for visual effect -->
+    <div class="star" style="top:50px; left:30px;">⭐</div>
+    <div class="star" style="top:120px; left:200px;">✨</div>
+    <div class="star" style="top:200px; left:400px;">🌟</div>
+    <div class="star" style="top:300px; left:100px;">🌠</div>
   </div>
 
   <script src="script.js"></script>
