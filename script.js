@@ -7,17 +7,17 @@ const startBtn = document.getElementById("startBtn");
 let level = 1;
 let recycle = 0;
 let audioCtx;
+let trashFallInterval;
 
 const foods = ["🍎","🍔","🍕","🥦","🍌","🌽","🍇","🍩"];
 
-// شروع بازی
 startBtn.addEventListener("click", () => {
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   startBtn.style.display = "none";
-  spawnTrash(); // اولین غذا
+  spawnTrash();
+  trashFallInterval = setInterval(spawnTrash, 1500); // هر 1.5 ثانیه غذا جدید
 });
 
-// تابع صدا بدون فایل
 function playBeep(freq=440, duration=150){
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const osc = audioCtx.createOscillator();
@@ -31,26 +31,25 @@ function playBeep(freq=440, duration=150){
   osc.stop(audioCtx.currentTime + duration/1000);
 }
 
-// بررسی برخورد غذا با سطل
 function checkTrashInBin(trash){
-  const tRect = trash.getBoundingClientRect();
-  const bRect = binEI.getBoundingClientRect();
+  const tLeft = parseFloat(trash.style.left);
+  const tTop = parseFloat(trash.style.top);
+  const tCenterX = tLeft + trash.offsetWidth/2;
+  const tCenterY = tTop + trash.offsetHeight/2;
 
-  const trashCenterX = tRect.left + tRect.width/2;
-  const trashCenterY = tRect.top + tRect.height/2;
-  const binCenterX = bRect.left + bRect.width/2;
-  const binCenterY = bRect.top + bRect.height/2;
+  const bLeft = binEI.offsetLeft;
+  const bTop = binEI.offsetTop;
+  const bCenterX = bLeft + binEI.offsetWidth/2;
+  const bCenterY = bTop + binEI.offsetHeight/2;
 
-  const distance = Math.hypot(trashCenterX-binCenterX, trashCenterY-binCenterY);
+  const distance = Math.hypot(tCenterX-bCenterX, tCenterY-bCenterY);
 
-  if(distance < bRect.width/2){
-    // غذا داخل سطل
+  if(distance < binEI.offsetWidth/2){
     trash.remove();
     recycle++;
-    recycleEI.textContent = recycle; // نمایش امتیاز
+    recycleEI.textContent = recycle;
     playBeep(600,150);
 
-    // هر 5 غذا Level افزایش می‌یابد
     if(recycle % 5 === 0){
       level++;
       levelEI.textContent = level;
@@ -59,22 +58,22 @@ function checkTrashInBin(trash){
 
     binEI.classList.add("active");
     setTimeout(()=>binEI.classList.remove("active"),300);
-
-    // یک غذا جدید بساز
-    spawnTrash();
   }
 }
 
-// ایجاد غذا و Drag & Drop
+// --- ایجاد غذا و Drag & Drop + سقوط ---
 function spawnTrash(){
   const trash = document.createElement("div");
   trash.className="trash";
   trash.textContent = foods[Math.floor(Math.random()*foods.length)];
   trash.style.left = Math.random()*(gameEI.clientWidth-50)+"px";
-  trash.style.top = Math.random()*50+"px";
+  trash.style.top = "0px";
   gameEI.appendChild(trash);
 
+  // Drag & Drop
   let dragging=false, offsetX=0, offsetY=0;
+  trash.addEventListener("mousedown", startDrag);
+  trash.addEventListener("touchstart", startDrag);
 
   function startDrag(e){
     dragging=true;
@@ -94,19 +93,20 @@ function spawnTrash(){
     e.preventDefault();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    let x = clientX - offsetX - gameEI.getBoundingClientRect().left;
-    let y = clientY - offsetY - gameEI.getBoundingClientRect().top;
+
+    const gameRect = gameEI.getBoundingClientRect();
+    let x = clientX - offsetX - gameRect.left;
+    let y = clientY - offsetY - gameRect.top;
     x = Math.max(0, Math.min(gameEI.clientWidth-50, x));
     y = Math.max(0, Math.min(gameEI.clientHeight-50, y));
     trash.style.left = x+"px";
     trash.style.top = y+"px";
 
-    // حلقه نورانی نزدیک سطل
-    const tRect = trash.getBoundingClientRect();
-    const bRect = binEI.getBoundingClientRect();
-    const dx = (tRect.left+tRect.width/2) - (bRect.left+bRect.width/2);
-    const dy = (tRect.top+tRect.height/2) - (bRect.top+bRect.height/2);
-    const dist = Math.hypot(dx, dy);
+    const tCenterX = x + trash.offsetWidth/2;
+    const tCenterY = y + trash.offsetHeight/2;
+    const bCenterX = binEI.offsetLeft + binEI.offsetWidth/2;
+    const bCenterY = binEI.offsetTop + binEI.offsetHeight/2;
+    const dist = Math.hypot(tCenterX-bCenterX, tCenterY-bCenterY);
     if(dist < 100){
       binEI.classList.add("glow");
     } else {
@@ -124,8 +124,21 @@ function spawnTrash(){
     binEI.classList.remove("glow");
   }
 
-  trash.addEventListener("mousedown", startDrag);
-  trash.addEventListener("touchstart", startDrag);
   trash.addEventListener("mouseup", stopDrag);
   trash.addEventListener("touchend", stopDrag);
+
+  // --- Falling animation ---
+  let fallSpeed = 1 + level*0.5;
+  function fall(){
+    if(dragging) { requestAnimationFrame(fall); return; }
+    let top = parseFloat(trash.style.top);
+    top += fallSpeed;
+    trash.style.top = top + "px";
+
+    checkTrashInBin(trash);
+
+    if(top < gameEI.clientHeight-50) requestAnimationFrame(fall);
+    else trash.remove();
+  }
+  requestAnimationFrame(fall);
 }
