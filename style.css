@@ -1,20 +1,22 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Vazir', Arial, sans-serif;
   text-align: center;
-  background: linear-gradient(to bottom, #e6ffe6, #ccffcc);
+  background: linear-gradient(to bottom, #a8e6cf, #dcedc1);
   margin: 0;
   padding: 0;
 }
 
 h1 {
-  margin: 10px 0;
-  color: #2e7d32;
+  margin: 15px 0;
+  color: #1b5e20;
+  text-shadow: 2px 2px 4px #fff;
 }
 
 #scoreBoard {
   font-size: 1.2rem;
   margin: 10px;
-  color: #1b5e20;
+  color: #2e7d32;
+  font-weight: bold;
 }
 
 #game {
@@ -22,53 +24,69 @@ h1 {
   width: 90%;
   height: 500px;
   margin: 20px auto;
-  border: 3px solid #2e7d32;
-  border-radius: 15px;
-  background: linear-gradient(#c8f7c8, #e0ffe0);
+  border: 4px solid #2e7d32;
+  border-radius: 20px;
+  background: linear-gradient(to top, #b9fbc0, #e0ffe0);
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.1);
   overflow: hidden;
 }
 
+/* زباله‌ها */
 .trash {
   position: absolute;
-  font-size: 2rem;
+  font-size: 2.2rem;
   cursor: grab;
   user-select: none;
+  transition: transform 0.2s ease, top 0.1s, left 0.1s;
+}
+.trash:active {
+  transform: scale(1.2) rotate(10deg);
 }
 
+/* سطل زباله */
 #bin {
-  width: 110px;
-  height: 110px;
-  border: 4px dashed #1b5e20;
-  border-radius: 20px;
-  font-size: 2.5rem;
+  width: 120px;
+  height: 120px;
+  border: 4px dashed #388e3c;
+  border-radius: 25px;
+  font-size: 2.8rem;
   text-align: center;
-  line-height: 110px;
+  line-height: 120px;
   background: #ffffffcc;
   position: absolute;
-  bottom: 20px;
+  bottom: 25px;
   left: 50%;
   transform: translateX(-50%);
   transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
 }
 
-/* وقتی غذا نزدیک سطل بشه */
+/* افکت وقتی غذا نزدیک میشه */
 #bin.glow {
-  box-shadow: 0 0 15px 5px #00ff00;
+  box-shadow: 0 0 25px 8px #76ff03;
+  transform: scale(1.05);
 }
 
 /* وقتی غذا داخل سطل انداخته شد */
 #bin.active {
-  background: #a0ffa0;
-  transform: scale(1.1);
-  box-shadow: 0 0 25px 10px #00ff00;
+  background: #c8e6c9;
+  transform: scale(1.15);
+  box-shadow: 0 0 30px 12px #00e676;
 }
 
+/* دکمه شروع */
 button {
-  padding: 10px 20px;
-  font-size: 1rem;
-  background: #2e7d32;
-  color: white;
-  border: none;
-  border-radius: 8px;
+  padding: 12px 30px;
+  font-size: 1.1rem;
   cursor: pointer;
+  background: linear-gradient(135deg, #43a047, #66bb6a);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  margin: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
 }
