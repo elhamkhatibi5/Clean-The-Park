@@ -44,12 +44,12 @@ h1 {
   position: relative;
 }
 
-/* حلقه نورانی وقتی غذا نزدیک شد */
+/* افکت نزدیک شدن */
 #bin.glow {
   box-shadow: 0 0 15px 5px #00ff00;
 }
 
-/* افکت وقتی غذا داخل سطل انداخته شد */
+/* افکت افتادن داخل */
 #bin.active {
   background-color: #a0ffa0;
   transform: scale(1.1);
@@ -64,10 +64,5 @@ button {
   color: #fff;
   border: none;
   border-radius: 8px;
-  margin: 5px;
-}
-
-.info {
-  font-size: 1.2rem;
   margin: 5px;
 }
