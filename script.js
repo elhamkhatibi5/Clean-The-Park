@@ -7,12 +7,21 @@ const startBtn = document.getElementById("startBtn");
 let level = 1;
 let recycle = 0;
 let audioCtx;
+let trashInterval;
 
 const foods = ["🍎","🍔","🍕","🥦","🍌","🌽","🍇","🍩"];
 
-// ---------- Web Audio API Sound ----------
-function playBeep(frequency = 440, duration = 150){
+// شروع بازی
+startBtn.addEventListener("click", () => {
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  startBtn.style.display = "none";
+  createTrash();
+  trashInterval = setInterval(createTrash, 2000); // هر ۲ ثانیه یک غذا
+});
+
+// صدا
+function playBeep(frequency = 440, duration = 150){
+  if(!audioCtx) return;
   const oscillator = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
   oscillator.connect(gainNode);
@@ -24,29 +33,40 @@ function playBeep(frequency = 440, duration = 150){
   oscillator.stop(audioCtx.currentTime + duration/1000);
 }
 
-// ---------- Start Game ----------
-startBtn.addEventListener("click", () => {
-  startBtn.style.display = "none";
-  createTrash(level * 5); // شروع با چند غذا
-  playBeep(700, 200);
-});
+// بررسی برخورد
+function checkTrashInBin(trash){
+  const trashRect = trash.getBoundingClientRect();
+  const binRect = binEI.getBoundingClientRect();
+  const trashCenterX = trashRect.left + trashRect.width/2;
+  const trashCenterY = trashRect.top + trashRect.height/2;
 
-// ---------- Create Food ----------
-function createTrash(count=1){
-  for(let i=0; i<count; i++){
-    const trash = document.createElement("div");
-    trash.className = "trash";
-    trash.textContent = foods[Math.floor(Math.random()*foods.length)];
-    trash.style.left = Math.random()*(gameEI.clientWidth-60) + "px";
-    trash.style.top = "20px";
-    gameEI.appendChild(trash);
+  if(trashCenterX >= binRect.left && trashCenterX <= binRect.right &&
+     trashCenterY >= binRect.top && trashCenterY <= binRect.bottom){
+    trash.remove();
+    recycle++;
+    recycleEI.textContent = recycle;
+    playBeep(600,150);
 
-    enableDrag(trash);
+    if(recycle % 5 === 0){
+      level++;
+      levelEI.textContent = level;
+      playBeep(900,300);
+    }
+
+    binEI.classList.add("active");
+    setTimeout(()=>binEI.classList.remove("active"),300);
   }
 }
 
-// ---------- Drag & Drop ----------
-function enableDrag(trash){
+// ایجاد غذا و دراگ
+function createTrash(){
+  const trash = document.createElement("div");
+  trash.className = "trash";
+  trash.textContent = foods[Math.floor(Math.random()*foods.length)];
+  trash.style.left = Math.random()*(gameEI.clientWidth-60) + "px";
+  trash.style.top = Math.random()*50 + "px";
+  gameEI.appendChild(trash);
+
   let offsetX=0, offsetY=0, dragging=false;
 
   trash.addEventListener("mousedown", startDrag);
@@ -78,7 +98,7 @@ function enableDrag(trash){
     trash.style.left = x+"px";
     trash.style.top = y+"px";
 
-    // glowing effect
+    // حلقه نورانی
     const trashRect = trash.getBoundingClientRect();
     const binRect = binEI.getBoundingClientRect();
     const dx = (trashRect.left + trashRect.width/2) - (binRect.left + binRect.width/2);
@@ -93,7 +113,6 @@ function enableDrag(trash){
   }
 
   function stopDrag(){
-    if(!dragging) return;
     dragging=false;
     document.removeEventListener("mousemove", drag);
     document.removeEventListener("mouseup", stopDrag);
@@ -102,31 +121,5 @@ function enableDrag(trash){
 
     checkTrashInBin(trash);
     binEI.classList.remove("glow");
-  }
-}
-
-// ---------- Check if inside bin ----------
-function checkTrashInBin(trash){
-  const trashRect = trash.getBoundingClientRect();
-  const binRect = binEI.getBoundingClientRect();
-  const trashCenterX = trashRect.left + trashRect.width/2;
-  const trashCenterY = trashRect.top + trashRect.height/2;
-
-  if(trashCenterX >= binRect.left && trashCenterX <= binRect.right &&
-     trashCenterY >= binRect.top && trashCenterY <= binRect.bottom){
-    trash.remove();
-    recycle++;
-    recycleEI.textContent = recycle;
-    playBeep(600,150);
-
-    if(recycle % 5 === 0){
-      level++;
-      levelEI.textContent = level;
-      createTrash(level * 2); // هر بار غذاهای بیشتری
-      playBeep(900,300);
-    }
-
-    binEI.classList.add("active");
-    setTimeout(()=>binEI.classList.remove("active"),300);
   }
 }
