@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,24 +7,32 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🌳 Clean the Park 🗑️</h1>
+  <!-- Header -->
+  <header class="header">
+    <h1>🌳 Clean the Park! 🗑️</h1>
+    <p class="subtitle">Drag the food into the bin!</p>
+  </header>
 
-  <div id="scoreBoard">
-    Level: <span id="level">1</span> | Score: <span id="recycle">0</span>
-  </div>
+  <!-- Status bar -->
+  <section class="status-bar">
+    <div class="info-box">💫 Level: <span id="level">1</span></div>
+    <div class="info-box">♻️ Collected: <span id="recycle">0</span></div>
+  </section>
 
+  <!-- Start button -->
   <button id="startBtn">Start Game</button>
 
-  <div id="game">
-    <!-- Bin inside game container -->
+  <!-- Game area -->
+  <main id="game">
     <div id="bin">🗑️</div>
-  </div>
+  </main>
 
-  <!-- Footer message -->
+  <!-- Footer -->
   <footer>
-    <p>Made with ❤️ • Eco-friendly</p>
+    <p>Made with ❤️ • Eco-friendly • Have Fun!</p>
   </footer>
 
+  <!-- Script -->
   <script src="script.js"></script>
 </body>
 </html>
