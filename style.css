@@ -1,5 +1,5 @@
 body {
-  font-family: 'Arial', sans-serif;
+  font-family: Arial, sans-serif;
   text-align: center;
   background: linear-gradient(to bottom, #e6ffe6, #ccffcc);
   margin: 0;
@@ -9,7 +9,12 @@ body {
 h1 {
   margin: 10px 0;
   color: #2e7d32;
-  text-shadow: 1px 1px #fff;
+}
+
+#scoreBoard {
+  font-size: 1.2rem;
+  margin: 10px;
+  color: #1b5e20;
 }
 
 #game {
@@ -18,51 +23,52 @@ h1 {
   height: 500px;
   margin: 20px auto;
   border: 3px solid #2e7d32;
+  border-radius: 15px;
   background: linear-gradient(#c8f7c8, #e0ffe0);
   overflow: hidden;
-  border-radius: 15px;
 }
 
 .trash {
   position: absolute;
   font-size: 2rem;
-  user-select: none;
   cursor: grab;
-  transition: transform 0.2s, top 0.1s, left 0.1s;
+  user-select: none;
 }
 
 #bin {
   width: 110px;
   height: 110px;
-  margin: 20px auto;
   border: 4px dashed #1b5e20;
   border-radius: 20px;
-  line-height: 110px;
   font-size: 2.5rem;
-  background-color: #ffffffcc;
+  text-align: center;
+  line-height: 110px;
+  background: #ffffffcc;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
-  position: relative;
 }
 
-/* افکت نزدیک شدن */
+/* وقتی غذا نزدیک سطل بشه */
 #bin.glow {
   box-shadow: 0 0 15px 5px #00ff00;
 }
 
-/* افکت افتادن داخل */
+/* وقتی غذا داخل سطل انداخته شد */
 #bin.active {
-  background-color: #a0ffa0;
+  background: #a0ffa0;
   transform: scale(1.1);
   box-shadow: 0 0 25px 10px #00ff00;
 }
 
 button {
-  padding: 10px 25px;
+  padding: 10px 20px;
   font-size: 1rem;
-  cursor: pointer;
-  background-color: #2e7d32;
-  color: #fff;
+  background: #2e7d32;
+  color: white;
   border: none;
   border-radius: 8px;
-  margin: 5px;
+  cursor: pointer;
 }
