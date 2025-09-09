@@ -7,29 +7,31 @@ const startBtn = document.getElementById("startBtn");
 let level = 1;
 let recycle = 0;
 let audioCtx;
+
 const foods = ["🍎","🍔","🍕","🥦","🍌","🌽","🍇","🍩"];
 
-// Start Game
+// شروع بازی
 startBtn.addEventListener("click", () => {
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   startBtn.style.display = "none";
-  spawnTrash();
+  spawnTrash(); // اولین غذا
 });
 
-// Web Audio API برای صدا
-function playBeep(frequency=440, duration=150){
-  const oscillator = audioCtx.createOscillator();
-  const gainNode = audioCtx.createGain();
-  oscillator.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-  oscillator.type="sine";
-  oscillator.frequency.value=frequency;
-  gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-  oscillator.start();
-  oscillator.stop(audioCtx.currentTime + duration/1000);
+// تابع صدا بدون فایل
+function playBeep(freq=440, duration=150){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.type = "sine";
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration/1000);
 }
 
-// بررسی برخورد با سطل
+// بررسی برخورد غذا با سطل
 function checkTrashInBin(trash){
   const tRect = trash.getBoundingClientRect();
   const bRect = binEI.getBoundingClientRect();
@@ -39,16 +41,16 @@ function checkTrashInBin(trash){
   const binCenterX = bRect.left + bRect.width/2;
   const binCenterY = bRect.top + bRect.height/2;
 
-  const dx = trashCenterX - binCenterX;
-  const dy = trashCenterY - binCenterY;
-  const distance = Math.sqrt(dx*dx + dy*dy);
+  const distance = Math.hypot(trashCenterX-binCenterX, trashCenterY-binCenterY);
 
   if(distance < bRect.width/2){
+    // غذا داخل سطل
     trash.remove();
     recycle++;
-    recycleEI.textContent = recycle;
+    recycleEI.textContent = recycle; // نمایش امتیاز
     playBeep(600,150);
 
+    // هر 5 غذا Level افزایش می‌یابد
     if(recycle % 5 === 0){
       level++;
       levelEI.textContent = level;
@@ -57,6 +59,9 @@ function checkTrashInBin(trash){
 
     binEI.classList.add("active");
     setTimeout(()=>binEI.classList.remove("active"),300);
+
+    // یک غذا جدید بساز
+    spawnTrash();
   }
 }
 
@@ -69,14 +74,11 @@ function spawnTrash(){
   trash.style.top = Math.random()*50+"px";
   gameEI.appendChild(trash);
 
-  let offsetX=0, offsetY=0, dragging=false;
-
-  trash.addEventListener("mousedown", startDrag);
-  trash.addEventListener("touchstart", startDrag);
+  let dragging=false, offsetX=0, offsetY=0;
 
   function startDrag(e){
     dragging=true;
-    const rect=trash.getBoundingClientRect();
+    const rect = trash.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     offsetX = clientX - rect.left;
@@ -102,9 +104,9 @@ function spawnTrash(){
     // حلقه نورانی نزدیک سطل
     const tRect = trash.getBoundingClientRect();
     const bRect = binEI.getBoundingClientRect();
-    const dx = (tRect.left + tRect.width/2) - (bRect.left + bRect.width/2);
-    const dy = (tRect.top + tRect.height/2) - (bRect.top + bRect.height/2);
-    const dist = Math.sqrt(dx*dx + dy*dy);
+    const dx = (tRect.left+tRect.width/2) - (bRect.left+bRect.width/2);
+    const dy = (tRect.top+tRect.height/2) - (bRect.top+bRect.height/2);
+    const dist = Math.hypot(dx, dy);
     if(dist < 100){
       binEI.classList.add("glow");
     } else {
@@ -122,6 +124,8 @@ function spawnTrash(){
     binEI.classList.remove("glow");
   }
 
+  trash.addEventListener("mousedown", startDrag);
+  trash.addEventListener("touchstart", startDrag);
   trash.addEventListener("mouseup", stopDrag);
   trash.addEventListener("touchend", stopDrag);
 }
